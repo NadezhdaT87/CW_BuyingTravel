@@ -1,0 +1,33 @@
+plugins {
+    id 'java'
+    id "io.freefair.lombok" version "6.6.1"
+}
+
+group = 'ru.netology'
+version = '1.0-SNAPSHOT'
+
+sourceCompatibility = 11
+compileJava.options.encoding = "UTF-8"
+compileTestJava.options.encoding = "UTF-8"
+
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.0'
+    testImplementation 'mysql:mysql-connector-java:8.0.30'
+    testImplementation 'com.github.javafaker:javafaker:1.0.2'
+    testImplementation 'commons-dbutils:commons-dbutils:1.7'
+    testImplementation 'com.codeborne:selenide:6.17.2'
+
+
+}
+
+test {
+    useJUnitPlatform()
+    systemProperty 'selenide.headless', System.getProperty('selenide.headless')
+    systemProperty 'chromeoptions.prefs', System.getProperty('chromeoptions.prefs', "profile.password_manager_leak_detection=false")
+    systemProperty 'app.url', System.getProperty('app.url', "jdbc:mysql://localhost:3306/app")
+}

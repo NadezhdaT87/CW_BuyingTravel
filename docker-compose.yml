@@ -1,0 +1,14 @@
+services:
+
+  mysql:
+    image: mysql:8.0.34
+    container_name: AQA_QAMID_DIPLOM
+
+    ports:
+      - '3306:3306'
+
+    environment:
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+      - MYSQL_DATABASE=app
+      - MYSQL_USER=app
+      - MYSQL_PASSWORD=pass
