@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id "io.freefair.lombok" version "6.6.1"
+    id 'io.qameta.allure' version '2.11.2'
 }
 
 group = 'ru.netology'
@@ -9,6 +10,13 @@ version = '1.0-SNAPSHOT'
 sourceCompatibility = 11
 compileJava.options.encoding = "UTF-8"
 compileTestJava.options.encoding = "UTF-8"
+
+allure {
+    version = '2.20.1'
+    useJUnit5 {
+        version = '2.20.1'
+    }
+}
 
 
 repositories {
@@ -21,13 +29,17 @@ dependencies {
     testImplementation 'com.github.javafaker:javafaker:1.0.2'
     testImplementation 'commons-dbutils:commons-dbutils:1.7'
     testImplementation 'com.codeborne:selenide:6.17.2'
-
-
+    testImplementation 'io.qameta.allure:allure-selenide:2.13.0'
+    testImplementation 'commons-dbutils:commons-dbutils:1.7'
+    testImplementation 'io.rest-assured:rest-assured:4.1.2'
+    testImplementation 'io.qameta.allure:allure-rest-assured:2.20.1'
+    testImplementation 'com.google.code.gson:gson:2.8.6'
 }
 
 test {
     useJUnitPlatform()
     systemProperty 'selenide.headless', System.getProperty('selenide.headless')
-    systemProperty 'chromeoptions.prefs', System.getProperty('chromeoptions.prefs', "profile.password_manager_leak_detection=false")
-    systemProperty 'app.url', System.getProperty('app.url', "jdbc:mysql://localhost:3306/app")
+    systemProperty 'spring.datasource.url', System.getProperty('spring.datasource.url', "jdbc:mysql://localhost:3306/app")
+    systemProperty 'spring.datasource.username', System.getProperty('spring.datasource.username', "app")
+    systemProperty 'spring.datasource.password', System.getProperty('spring.datasource.password', "pass")
 }
