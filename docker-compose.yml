@@ -2,7 +2,7 @@ services:
 
   mysql:
     image: mysql:8.0.34
-    container_name: AQA_QAMID_DIPLOM
+    container_name: AQA_QAMID_DIPLOMA
 
     ports:
       - '3306:3306'

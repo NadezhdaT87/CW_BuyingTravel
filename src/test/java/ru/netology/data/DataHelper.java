@@ -49,7 +49,25 @@ public class DataHelper {
         var randomYear = String.format("%02d", Faker.instance().number().numberBetween(currentDate.getYear() + 1, currentDate.getYear() + 5)).substring(2);
         return new CardMonthAndYear(randomMonth, randomYear);
     }
+    public static CardMonthAndYear getInvalidCardWithFutureYears() {
+        var currentDate = LocalDate.now();
+        var randomMonth = String.format("%02d", FAKER.number().numberBetween(1, 12));
+        var randomYear = String.format("%02d", Faker.instance().number().numberBetween(currentDate.getYear() + 6, currentDate.getYear() + 50)).substring(2);
+        return new CardMonthAndYear(randomMonth, randomYear);
+    }
+    public static CardMonthAndYear getInvalidCardWithPreviousYears () {
+        var currentDate = LocalDate.now();
+        var randomMonth = String.format("%02d", FAKER.number().numberBetween(1, 12));
+        var randomYear = String.format("%02d", Faker.instance().number().numberBetween(currentDate.getYear() - 1, currentDate.getYear() - 5)).substring(2);
+        return new CardMonthAndYear(randomMonth, randomYear);
+    }
 
+    public static CardMonthAndYear getCurrentMonthAndYear() {
+        var currentDate = LocalDate.now();
+        var formattedMonth = String.format("%02d", LocalDate.now().getMonthValue()-1);
+        var formattedYear = String.format("%02d", LocalDate.now().getYear()).substring(2);
+        return new CardMonthAndYear(formattedMonth, formattedYear);
+    }
 
     public static String getValidCardHolderName() {
         var firstName = FAKER.name().firstName();

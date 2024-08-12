@@ -15,12 +15,12 @@ public class CreditPage {
 
         private SelenideElement buyCreditCardButton = $("div > button:nth-child(4) > span > span");
         private SelenideElement headingCreditPay = $(byText("Кредит по данным карты"));
-        private SelenideElement cardNumder = $("form fieldset .input input");
-        private SelenideElement month = $("form fieldset .input-group .input input");
-        private SelenideElement year = $("form fieldset .input-group > span:nth-child(2) .input input");
-        private SelenideElement cardHolder = $("form fieldset > div:nth-child(3) .input-group [view='default']");
+        private SelenideElement cardNumder = $("form > fieldset > div:nth-child(1) .input input");
+        private SelenideElement month = $("form > fieldset > div:nth-child(2) > .input-group > span:nth-child(1) .input input");
+        private SelenideElement year = $("form > fieldset > div:nth-child(2) > .input-group > span:nth-child(2) .input input");
+        private SelenideElement cardHolder = $("form > fieldset > div:nth-child(3) > .input-group > span:nth-child(1) .input input");
         private SelenideElement cardCode = $("form > fieldset > div:nth-child(3) > .input-group > span:nth-child(2) .input input");
-        private SelenideElement buttonSubmit = $("form fieldset button");
+        private SelenideElement buttonSubmit = $("form > fieldset > div:nth-child(4) button");
         private SelenideElement notificationChecking = $(".notification");
         private SelenideElement notificationOkContent = $(".notification_status_ok .notification__content");
         private SelenideElement notificationStatusOk = $(".notification_status_ok");

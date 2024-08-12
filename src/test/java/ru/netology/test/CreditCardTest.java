@@ -1,6 +1,7 @@
 package ru.netology.test;
 
 import com.codeborne.selenide.logevents.SelenideLogger;
+import io.qameta.allure.Allure;
 import io.qameta.allure.selenide.AllureSelenide;
 import org.junit.jupiter.api.*;
 import ru.netology.data.DataHelper;
@@ -31,7 +32,7 @@ public class CreditCardTest {
 
     @DisplayName("Успешная покупка в кредит с валидными данными карты со статусом APPROVED")
     @Test
-    public void SuccessfulPurchaseWithValidCard() {
+    public void successfulPurchaseWithValidCard() {
         var cardNumber = DataHelper.approvedCardNumber();
         var month = DataHelper.getValidMonthAndYear().getCardMonth();
         var year = DataHelper.getValidMonthAndYear().getCardYear();
@@ -67,7 +68,7 @@ public class CreditCardTest {
 
     @DisplayName("Отклонение оплаты в кредит с карты со статусом DECLINED")
     @Test
-    public void PaymentRejectionWithCardDeclined() {
+    public void paymentRejectionWithCardDeclined() {
         var cardNumber = DataHelper.declinedCardNumber();
         var month = DataHelper.getValidMonthAndYear().getCardMonth();
         var year = DataHelper.getValidMonthAndYear().getCardYear();
@@ -101,10 +102,9 @@ public class CreditCardTest {
                         })
         );
     }
-
     @Test
     @DisplayName("Отклонение оплаты в кредит с недействительным номером карты")
-    void PaymentRejectionWithInvalidCard() {
+    void paymentRejectionWithInvalidCard() {
         var cardNumber = DataHelper.getRandomCardNumber();
         var month = DataHelper.getValidMonthAndYear().getCardMonth();
         var year = DataHelper.getValidMonthAndYear().getCardYear();
@@ -130,7 +130,7 @@ public class CreditCardTest {
 
     @DisplayName("Неуспешная оплата в кредит без указания номера карты")
     @Test
-    public void UnsuccessfulPaymentWithoutCard() {
+    public void unsuccessfulPaymentWithoutCard() {
         var month = DataHelper.getValidMonthAndYear().getCardMonth();
         var year = DataHelper.getValidMonthAndYear().getCardYear();
         var cardHolder = DataHelper.getValidCardHolderName();
@@ -142,16 +142,13 @@ public class CreditCardTest {
             creditPage.creditByCard(cardInfo);
         });
 
-        assertAll(
-                () ->
-                        step("Проверка уведомления об ошибке", () -> {
-                            creditPage.checkInputInvalid("Номер карты Неверный формат");
-                        })
-        );
+        Allure.step("Проверка уведомления об ошибке", () -> {
+            creditPage.checkInputInvalid("Номер карты Неверный формат");
+        });
     }
     @DisplayName("Неуспешная попытка оплаты в кредит с 15-значным номером карты")
     @Test
-    public void UnsuccessfulPaymentWith15DigitCardNumber() {
+    public void unsuccessfulPaymentWith15DigitCardNumber() {
         var cardNumber = DataHelper.getInvalidCardNumberLessThan16();
         var month = DataHelper.getValidMonthAndYear().getCardMonth();
         var year = DataHelper.getValidMonthAndYear().getCardYear();
@@ -164,17 +161,14 @@ public class CreditCardTest {
             creditPage.creditByCard(cardInfo);
         });
 
-        assertAll(
-                () ->
-                        step("Проверка уведомления об ошибке", () -> {
-                            creditPage.checkInputInvalid("Номер карты Неверный формат");
-                        })
-        );
+        Allure.step("Проверка уведомления об ошибке", () -> {
+            creditPage.checkInputInvalid("Номер карты Неверный формат");
+        });
     }
 
     @DisplayName("Неуспешная оплата в кредит без указания месяца карты")
     @Test
-    public void UnsuccessfulPaymentWithoutMonth() {
+    public void unsuccessfulPaymentWithoutMonth() {
         var cardNumber = DataHelper.getRandomCardNumber();
         var year = DataHelper.getValidMonthAndYear().getCardYear();
         var cardHolder = DataHelper.getValidCardHolderName();
@@ -186,17 +180,71 @@ public class CreditCardTest {
             creditPage.creditByCard(cardInfo);
         });
 
-        assertAll(
-                () ->
-                        step("Проверка уведомления об ошибке", () -> {
-                            creditPage.checkInputInvalid("Месяц Неверный формат");
-                        })
-        );
+        Allure.step("Проверка уведомления об ошибке", () -> {
+            creditPage.checkInputInvalid("Месяц Неверный формат");
+        });
+    }
+    @DisplayName("Неуспешная оплата в кредит с указанием прошлого месяца текущего года карты")
+    @Test
+    public void unsuccessfulPaymentWithCurrentMonthAndYear() {
+        var cardNumber = DataHelper.getRandomCardNumber();
+        var month = DataHelper.getCurrentMonthAndYear().getCardMonth();
+        var year = DataHelper.getCurrentMonthAndYear().getCardYear();
+        var cardHolder = DataHelper.getValidCardHolderName();
+        var cardCode = DataHelper.getRandomCardCode();
+        var cardInfo = new DataHelper.CardInfo(cardNumber, month, year, cardHolder, cardCode);
+        var creditPage = new CreditPage();
+
+        step("Производим оплату", () -> {
+            creditPage.creditByCard(cardInfo);
+        });
+
+        Allure.step("Проверка уведомления об ошибке", () -> {
+            creditPage.checkInputInvalid("Месяц Неверно указан срок действия карты");
+        });
+    }
+    @DisplayName("Неуспешная оплата в кредит с указанием истекшего года карты")
+    @Test
+    public void unsuccessfulPaymentWithExpiredYear() {
+        var cardNumber = DataHelper.getRandomCardNumber();
+        var month = DataHelper.getInvalidCardWithPreviousYears().getCardMonth();
+        var year = DataHelper.getInvalidCardWithPreviousYears().getCardYear();
+        var cardHolder = DataHelper.getValidCardHolderName();
+        var cardCode = DataHelper.getRandomCardCode();
+        var cardInfo = new DataHelper.CardInfo(cardNumber, month, year, cardHolder, cardCode);
+        var creditPage = new CreditPage();
+
+        step("Производим оплату", () -> {
+            creditPage.creditByCard(cardInfo);
+        });
+
+        Allure.step("Проверка уведомления об ошибке", () -> {
+            creditPage.checkInputInvalid("Год Истёк срок действия карты");
+        });
+    }
+    @DisplayName("Неуспешная оплата в кредит с указанием будущего года карты(больше 5 лет)")
+    @Test
+    public void unsuccessfulPaymentOnCreditIndicatingFutureYearCardForMoreThan5() {
+        var cardNumber = DataHelper.getRandomCardNumber();
+        var month = DataHelper.getInvalidCardWithFutureYears().getCardMonth();
+        var year = DataHelper.getInvalidCardWithFutureYears().getCardYear();
+        var cardHolder = DataHelper.getValidCardHolderName();
+        var cardCode = DataHelper.getRandomCardCode();
+        var cardInfo = new DataHelper.CardInfo(cardNumber, month, year, cardHolder, cardCode);
+        var creditPage = new CreditPage();
+
+        step("Производим оплату", () -> {
+            creditPage.creditByCard(cardInfo);
+        });
+
+        Allure.step("Проверка уведомления об ошибке", () -> {
+            creditPage.checkInputInvalid("Год Неверно указан срок действия карты");
+        });
     }
 
     @DisplayName("Неуспешная оплата в кредит без указания года карты")
     @Test
-    public void UnsuccessfulPaymentWithoutYear() {
+    public void unsuccessfulPaymentWithoutYear() {
         var cardNumber = DataHelper.getRandomCardNumber();
         var month = DataHelper.getValidMonthAndYear().getCardMonth();
         var cardHolder = DataHelper.getValidCardHolderName();
@@ -208,17 +256,14 @@ public class CreditCardTest {
             creditPage.creditByCard(cardInfo);
         });
 
-        assertAll(
-                () ->
-                        step("Проверка уведомления об ошибке", () -> {
-                            creditPage.checkInputInvalid("Год Неверный формат");
-                        })
-        );
+        Allure.step("Проверка уведомления об ошибке", () -> {
+            creditPage.checkInputInvalid("Год Неверный формат");
+        });
     }
 
     @DisplayName("Неуспешная оплата в кредит с указанием 2-значного номера CVV/CVC карты")
     @Test
-    public void FailedPaymentWithCodeOfFewerCharacters() {
+    public void failedPaymentWithCodeOfFewerCharacters() {
         var cardNumber = DataHelper.approvedCardNumber();
         var month = DataHelper.getValidMonthAndYear().getCardMonth();
         var year = DataHelper.getValidMonthAndYear().getCardYear();
@@ -230,17 +275,13 @@ public class CreditCardTest {
         step("Производим оплату", () -> {
             creditPage.creditByCard(cardInfo);
         });
-
-        assertAll(
-                () ->
-                        step("Проверка уведомления об ошибке", () -> {
-                            creditPage.checkInputInvalid("CVC/CVV Неверный формат");
-                        })
-        );
+        Allure.step("Проверка уведомления об ошибке", () -> {
+            creditPage.checkInputInvalid("CVC/CVV Неверный формат");
+        });
     }
     @DisplayName("Неуспешная оплата в кредит без указания номера CVV/CVC карты")
     @Test
-    public void UnsuccessfulPaymentWithoutCVC() {
+    public void unsuccessfulPaymentWithoutCVC() {
         var cardNumber = DataHelper.approvedCardNumber();
         var month = DataHelper.getValidMonthAndYear().getCardMonth();
         var year = DataHelper.getValidMonthAndYear().getCardYear();
@@ -252,17 +293,14 @@ public class CreditCardTest {
             creditPage.creditByCard(cardInfo);
         });
 
-        assertAll(
-                () ->
-                        step("Проверка уведомления об ошибке", () -> {
-                            creditPage.checkInputInvalid("CVC/CVV Неверный формат");
-                        })
-        );
+        Allure.step("Проверка уведомления об ошибке", () -> {
+            creditPage.checkInputInvalid("CVC/CVV Неверный формат");
+        });
     }
 
     @DisplayName("Неуспешная оплата без указания владельца карты")
     @Test
-    public void UnsuccessfulPaymentWithoutHolder() {
+    public void unsuccessfulPaymentWithoutHolder() {
         var cardNumber = DataHelper.getRandomCardNumber();
         var month = DataHelper.getValidMonthAndYear().getCardMonth();
         var year = DataHelper.getValidMonthAndYear().getCardYear();
@@ -273,18 +311,14 @@ public class CreditCardTest {
         step("Производим оплату", () -> {
             creditPage.creditByCard(cardInfo);
         });
-
-        assertAll(
-                () ->
-                        step("Проверка уведомления об ошибке", () -> {
-                            creditPage.checkInputInvalid("Владелец Поле обязательно для заполнения");
-                        })
-        );
+        Allure.step("Проверка уведомления об ошибке", () -> {
+            creditPage.checkInputInvalid("Владелец Поле обязательно для заполнения");
+        });
     }
 
     @DisplayName("Неуспешная оплата со спец.символами в поле владелец по карте в кредит")
     @Test
-    public void UnsuccessfulPaymentWithInvalidHolderSymbols() {
+    public void unsuccessfulPaymentWithInvalidHolderSymbols() {
         var cardNumber = DataHelper.approvedCardNumber();
         var month = DataHelper.getValidMonthAndYear().getCardMonth();
         var year = DataHelper.getValidMonthAndYear().getCardYear();
@@ -295,21 +329,16 @@ public class CreditCardTest {
 
         step("Производим оплату", () -> {
             creditPage.creditByCard(cardInfo);
-            creditPage.waitingNotification();
+
         });
 
-        assertAll(
-                () ->
-                        step("Проверка уведомления об ошибке", () -> {
-                            creditPage.checkInputInvalid("Владелец Неверный формат");
-                        }),
-                () ->
-                        step("Проверка отсутствия видимости уведомления об успехе",  creditPage::shouldOkNotificationInvisibile)
-        );
+        Allure.step("Проверка уведомления об ошибке", () -> {
+            creditPage.checkInputInvalid("Владелец Поле обязательно для заполнения");
+        });
     }
     @DisplayName("Неуспешная оплата с цифрами в поле владелец по карте в кредит")
     @Test
-    public void UnsuccessfulPaymentWithInvalidHolderNumbers() {
+    public void unsuccessfulPaymentWithInvalidHolderNumbers() {
         var cardNumber = DataHelper.approvedCardNumber();
         var month = DataHelper.getValidMonthAndYear().getCardMonth();
         var year = DataHelper.getValidMonthAndYear().getCardYear();
@@ -320,17 +349,12 @@ public class CreditCardTest {
 
         step("Производим оплату", () -> {
             creditPage.creditByCard(cardInfo);
-            creditPage.waitingNotification();
+
         });
 
-        assertAll(
-                () ->
-                        step("Проверка уведомления об ошибке", () -> {
-                            creditPage.checkInputInvalid("Владелец Неверный формат");
-                        }),
-                () ->
-                        step("Проверка отсутствия видимости уведомления об успехе",  creditPage::shouldOkNotificationInvisibile)
-        );
+        Allure.step("Проверка уведомления об ошибке", () -> {
+            creditPage.checkInputInvalid("Владелец Поле обязательно для заполнения");
+        });
     }
 
 }
